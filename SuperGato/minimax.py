@@ -19,7 +19,6 @@ def fichaOponente(ficha):
     else:
         return "O"
 
-
 def minimax(tablero, profundidad, alpha, beta, funcion_puntaje, maximizar, ficha):
     """
     Algotimo Minimax. Dado el estado actual del juego, alpha, beta,
@@ -50,8 +49,9 @@ def minimax(tablero, profundidad, alpha, beta, funcion_puntaje, maximizar, ficha
                 return (None, -funcion_puntaje(tablero, ficha_oponente))
 
     if maximizar:  # Turno del computador en la profundidad actual
-        # TODO: Obtener jugadas disponibles [HINT: Usa el método jugadas_disponibles()]
-        posiciones_validas = None # CAMBIAR
+        # para hacer este código me basé en las fuentes (1) y (2) del readme.
+
+        posiciones_validas = tablero.jugadas_disponibles()
 
         # Iniciamos un puntaje muy bajo
         puntaje = -math.inf
@@ -61,38 +61,44 @@ def minimax(tablero, profundidad, alpha, beta, funcion_puntaje, maximizar, ficha
 
         # Expandimos los nodos para cada columna válida
         for jugada in posiciones_validas:
-            # TODO: Crear una copia del tablero [HINT: Usa deepcopy]
+            copia_tablero = deepcopy(tablero)
+            
+            copia_tablero.ejecutar_jugada(jugada, ficha)
+            puntos = funcion_puntaje(tablero, ficha)
 
-            # TODO: Ejecutar la jugada en la copia del tablero
+            jugada_, puntos = minimax(copia_tablero, profundidad - 1, alpha, beta, funcion_puntaje, False, ficha)
 
-            # TODO: Llamado recursivo de minimax
-
-            # TODO: Revisamos si la nueva jugada es mejor y actualizamos puntaje y posicion
-
-            pass
-
+            if puntos > puntaje:
+                puntaje = funcion_puntaje(tablero, ficha)
+                alpha = max(alpha, puntaje)
+                if beta <= alpha:
+                    break
+        posicion = jugada
         return posicion, puntaje
 
     else:  # Turno del "Humano" en la profundidad actual
-        # TODO: Obtener jugadas disponibles [HINT: Usa el método jugadas_disponibles()]
-        posiciones_validas = None # CAMBIAR
+        posiciones_validas = tablero.jugadas_disponibles()
 
         # Iniciamos un puntaje muy alto
         puntaje = math.inf
 
-        # Movimiento random si no hay uno mejor
+        # Elegir un movimiento random si no hay uno mejor
         posicion = random.choice(posiciones_validas)
 
         # Expandimos los nodos para cada columna válida
         for jugada in posiciones_validas:
-            # TODO: Crear una copia del tablero [HINT: Usa deepcopy]
+            copia_tablero = deepcopy(tablero)
 
-            # TODO: Ejecutar la jugada en la copia del tablero
+            copia_tablero.ejecutar_jugada(jugada, ficha)
 
-            # TODO: Llamado recursivo de minimax
+            jugada_, puntos = minimax(copia_tablero, profundidad - 1, alpha, beta, funcion_puntaje, True, ficha)
 
-            # TODO: Revisamos si la nueva jugada es mejor y actualizamos puntaje y posicion
+            puntos = funcion_puntaje(tablero, ficha)
 
-            pass
-
+            if puntos < puntaje:
+                puntaje = funcion_puntaje(tablero, ficha)
+                beta = min(alpha, puntaje)
+                if beta <= alpha:
+                    break
+        posicion = jugada
         return posicion, puntaje

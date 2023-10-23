@@ -119,32 +119,66 @@ class Board(object):
             Board.heuristic = Board.h1
         elif heur == "h2":
             Board.heuristic = Board.h2
+        elif heur == "h3":
+            Board.heuristic = Board.h3
 
     def h0(self):
         """Zero Heuristic, Dijkstra's Algorithm"""
         return 0
-    
+
+    # g(n) es la cantidad de piezas en un estado no solución
+    # esta heurística nos indica que no tenemos conocimiento de qué tan cerca estamos del objetivo
+    # es decir, la función por la que se guiará el programa hasta encontrar un objetivo es dada por
+    # f(s) = g(s), el coste del camino que se tenga que tomar, pero no tendremos nociones de qué
+    # camino nos acerca más al objetivo, simplemente se irán probando caminos hasta llegar a la solución.
+
+
     def h1(self):
         """Distancia del auto rojo a la salida"""
-        red_car = [car for car in self.cars if car.is_red_car][0]
+        red_car = [car for car in self.cars if car.is_red_car][0] # guarda el auto rojo
         return self.size['x'] - red_car.coord['x'] - red_car.length - 1
+
+    # esta heurística nos indica el camino que se debe seguir según qué tanto nos acerca este a la
+    # solución, es decir a que el auto rojo llegue a la salida. Así, va verificando la posición de este
+    # auto y buscará soluciones que hagan que este esté cada vez más cerca de salir.
+
 
     def h2(self):
         """Cantidad de autos que bloquean al auto rojo"""
         red_car = [
-            car for car in self.cars if car.is_red_car][0]
+            car for car in self.cars if car.is_red_car][0] # guarda el auto rojo
         if red_car.coord['x'] == 4:
-            return 0
+            return 0  # si el auto rojo llegó a la salida, la heurística vale 0
         blockingcars = 1
         for car in self.cars:
-            if car.orientation == Orientation.VERTICAL and car.coord['x'] >= (red_car.coord['x'] + red_car.length) and (car.coord['y'] <= red_car.coord['y'] and car.coord['y'] + car.length > red_car.coord['y']):
-                blockingcars += 1
+            if car.orientation == Orientation.VERTICAL and car.coord['x'] >= (red_car.coord['x'] + red_car.length) and (car.coord['y'] <= red_car.coord['y'] and car.coord['y'] + car.length >= red_car.coord['y']):
+                blockingcars += 1  # aquí se analiza si alguno de los autos verticales está bloqueando por delante al auto rojo y se cuenta la cantidad
         return blockingcars
-    
-    # TODO: Completar con tu propia heurística
+
+    # la heurística es entregada según el número de autos que están bloqueando la salida del auto rojo.
+    # Es decir, si no hay autos bloqueando, h(s) = 1, y se buscará llegar a h(s) = 0, que es cuando llega
+    # el auto rojo a la salida.
+    # la cantidad de autos bloqueando  se da según la cantidad de autos verticales atravesados, entonces
+    # se tratarán de buscar los caminos que minimicen esta cantidad de autos.
+
+
     def h3(self):
-        """Implementa tu propia heurística de trabajo"""
-        return None
+        """Se considera la distancia del auto rojo a la salida y los obstáculos hasta esta
+           como heurística."""
+        red_car = [car for car in self.cars if car.is_red_car][0] # guarda el auto rojo
+        distancia = self.size['x'] - red_car.coord['x'] - red_car.length - 1
+        if red_car.coord['x'] == 4:
+            return 0  # si el auto rojo llegó a la salida, la heurística vale 0
+        blockingcars = 1
+        for car in self.cars:
+            if car.orientation == Orientation.VERTICAL and car.coord['x'] >= (red_car.coord['x'] + red_car.length) and (car.coord['y'] <= red_car.coord['y'] and car.coord['y'] + car.length >= red_car.coord['y']):
+                blockingcars += 1  # aquí se analiza si alguno de los autos verticales está bloqueando por delante al auto rojo y se cuenta la cantidad
+        return blockingcars + distancia
+    
+    # Aqui utilicé los códigos ya proporcionados aquí para fabricar esta heuristica.
+    # Para ello, consideré que un camino mejor que los anteriores sería uno que considere los
+    # aspectos positivos de ambos algoritmos.
+    
 
     @staticmethod
     def readFromfile(filename):

@@ -38,3 +38,5 @@ print(solver.solution(board, moves))
 print(f'Found a solution in', len(moves), 'moves!')
 print('Time: {} seconds'.format(solver.end_time - solver.start_time))
 print('Expansions: {}'.format(solver.expansions))
+
+# python game/run.py astar tests/test7.txt h2 1
